@@ -36,7 +36,7 @@ class SortingApp(App):
             color=(1, 1, 1, 1),
             bold=True
         )
-        sorting_btn.bind(on_press=lambda x: setattr(self.sm, "current", "sorting"))
+        sorting_btn.bind(on_press=self.got_to_sorting)
         layout.add_widget(sorting_btn)
 
         # Search Button → go to search screen
@@ -48,7 +48,7 @@ class SortingApp(App):
             color=(1, 1, 1, 1),
             bold=True
         )
-        search_btn.bind(on_press=lambda x: setattr(self.sm, "current", "search"))
+        
         layout.add_widget(search_btn)
 
         return layout
@@ -176,6 +176,17 @@ class SortingApp(App):
         )
         layout.add_widget(self.output_box)
 
+        
+        self.back_button = Button(
+            text="Back",
+            size_hint=(0.15, 0.08),
+            pos_hint={"left": 0.98, "top": 0.98},
+            background_color=(1, 0.757, 0.027, 1),
+            bold=True
+        )
+        self.back_button.bind(on_press=self.go_home)  
+
+        layout.add_widget(self.back_button)
         return layout
 
     def build(self):
@@ -196,6 +207,12 @@ class SortingApp(App):
 
         self.sm.current = "home"
         return self.sm
+    def go_home(self, instance):
+        self.sm.current = "home"
+
+    def got_to_sorting(self, instance):
+        self.sm.current = "sorting"
+
 
     def input_conversion(self, instance):
         raw_input = self.data_input.text.strip()
@@ -242,6 +259,10 @@ class SortingApp(App):
                 sorter = BubbleSort(data)
                 sorted_data, iterations = sorter.Bubble(order)
 
+                # Keep tuple type if originally tuple
+                if isinstance(data, tuple):
+                    sorted_data = tuple(sorted_data)
+
                 self.output_box.text = str(sorted_data)
                 self.iter_result.text = str(iterations)
             else:
@@ -255,5 +276,3 @@ class SortingApp(App):
 
 if __name__ == "__main__":
     SortingApp().run()
-
-
