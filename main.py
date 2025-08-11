@@ -6,13 +6,54 @@ from kivy.uix.spinner import Spinner
 from kivy.uix.button import Button
 from kivy.core.window import Window
 from bubblesort import BubbleSort
+from kivy.uix.screenmanager import ScreenManager, Screen
 
 Window.size = (700, 500)
-Window.clearcolor = (0.94, 0.94, 0.96, 1) 
+Window.clearcolor = (0.94, 0.94, 0.96, 1)
 
 
 class SortingApp(App):
-    def build(self):
+
+    def build_home_screen(self):
+        layout = FloatLayout()
+
+        # Title
+        layout.add_widget(Label(
+            text="[b]DATA STRUCTURES AND ALGORITHM[/b]",
+            markup=True,
+            font_size=28,
+            color=(0.15, 0.15, 0.15, 1),
+            size_hint=(1, 0.2),
+            pos_hint={"x": 0, "top": 0.95}
+        ))
+
+        # Sorting Button → go to sorting screen
+        sorting_btn = Button(
+            text="Sorting Screen",
+            size_hint=(0.5, 0.15),
+            pos_hint={"center_x": 0.5, "top": 0.6},
+            background_color=(0.0, 0.6, 0.55, 1),
+            color=(1, 1, 1, 1),
+            bold=True
+        )
+        sorting_btn.bind(on_press=lambda x: setattr(self.sm, "current", "sorting"))
+        layout.add_widget(sorting_btn)
+
+        # Search Button → go to search screen
+        search_btn = Button(
+            text="Search Screen",
+            size_hint=(0.5, 0.15),
+            pos_hint={"center_x": 0.5, "top": 0.4},
+            background_color=(0.0, 0.5, 0.75, 1),
+            color=(1, 1, 1, 1),
+            bold=True
+        )
+        search_btn.bind(on_press=lambda x: setattr(self.sm, "current", "search"))
+        layout.add_widget(search_btn)
+
+        return layout
+
+    def build_sorting_screen(self):
         layout = FloatLayout()
 
         # Colors
@@ -83,16 +124,16 @@ class SortingApp(App):
         )
         layout.add_widget(self.algorithm)
 
-        # Sort Button with direct on_press
+        # Sort Button
         self.sort_button = Button(
             text="Sort",
             size_hint=(0.9, 0.08),
             pos_hint={"x": 0.05, "top": 0.58},
             background_color=button_color,
             color=(1, 1, 1, 1),
-            bold=True,
-            on_press=self.input_conversion  # ✅ linked function
+            bold=True
         )
+        self.sort_button.bind(on_press=self.input_conversion)
         layout.add_widget(self.sort_button)
 
         # Iterations Label
@@ -137,24 +178,38 @@ class SortingApp(App):
 
         return layout
 
+    def build(self):
+        self.sm = ScreenManager()
+
+        home_screen = Screen(name="home")
+        home_screen.add_widget(self.build_home_screen())
+
+        self.sorting_screen = Screen(name="sorting")
+        self.sorting_screen.add_widget(self.build_sorting_screen())
+
+        self.search_screen = Screen(name="search")
+        self.search_screen.add_widget(Label(text="Search screen coming soon!"))
+
+        self.sm.add_widget(home_screen)
+        self.sm.add_widget(self.sorting_screen)
+        self.sm.add_widget(self.search_screen)
+
+        self.sm.current = "home"
+        return self.sm
+
     def input_conversion(self, instance):
         raw_input = self.data_input.text.strip()
-        input_type = self.input_type.text  
+        input_type = self.input_type.text
 
         try:
             match input_type:
                 case "List":
                     sep = raw_input.split(",")
-                    data = []
-                    for i in sep:
-                        data.append(i.strip())
+                    data = [i.strip() for i in sep]
 
                 case "Tuple":
                     sep = raw_input.split(",")
-                    temp = []
-                    for p in sep:
-                        temp.append(p.strip())
-                    data = tuple(temp)
+                    data = tuple(p.strip() for p in sep)
 
                 case "Dictionary":
                     sep = raw_input.split(",")
@@ -169,24 +224,25 @@ class SortingApp(App):
                             else:
                                 value = int(value_str)
                         except ValueError:
-                            value = value_str  # fallback to string if conversion fails
+                            value = value_str
                         data[key] = value
-
 
                 case "String":
                     sep = raw_input.split(",")
-                    data = []
-                    for i in sep:
-                        data.append(i.strip())  
+                    data = [i.strip() for i in sep]
 
-                    
                 case _:
                     self.output_box.text = "Invalid Input Type Selected"
                     return
+
             order = self.sorting_order.text
             if self.algorithm.text == "Bubble Sort":
                 sorter = BubbleSort(data)
                 sorted_data, iterations = sorter.Bubble(order)
+
+                # Keep tuple type if originally tuple
+                if isinstance(data, tuple):
+                    sorted_data = tuple(sorted_data)
 
                 self.output_box.text = str(sorted_data)
                 self.iter_result.text = str(iterations)
@@ -197,8 +253,7 @@ class SortingApp(App):
         except Exception:
             self.output_box.text = "Invalid Input"
             self.iter_result.text = ""
-                
+
 
 if __name__ == "__main__":
     SortingApp().run()
-
