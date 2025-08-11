@@ -229,7 +229,9 @@ class SortingApp(App):
 
                 case "String":
                     sep = raw_input.split(",")
-                    data = [i.strip() for i in sep]
+                    data=[]
+                    for i in sep:
+                        data.append(i.strip())
 
                 case _:
                     self.output_box.text = "Invalid Input Type Selected"
@@ -253,4 +255,5 @@ class SortingApp(App):
 
 if __name__ == "__main__":
     SortingApp().run()
+
 
