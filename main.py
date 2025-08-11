@@ -259,10 +259,6 @@ class SortingApp(App):
                 sorter = BubbleSort(data)
                 sorted_data, iterations = sorter.Bubble(order)
 
-                # Keep tuple type if originally tuple
-                if isinstance(data, tuple):
-                    sorted_data = tuple(sorted_data)
-
                 self.output_box.text = str(sorted_data)
                 self.iter_result.text = str(iterations)
             else:
@@ -276,3 +272,4 @@ class SortingApp(App):
 
 if __name__ == "__main__":
     SortingApp().run()
+
